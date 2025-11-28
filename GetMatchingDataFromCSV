@@ -1,0 +1,36 @@
+import pandas as pd
+
+def extract_matching_values(input_file, reference_file, input_matching_columns, reference_matching_columns):
+    # Read input CSV file into a pandas DataFrame without headers
+    input_df = pd.read_csv(input_file, header=None, encoding='utf-8', dtype=str,keep_default_na=False)
+
+    # Read the reference CSV file into a pandas DataFrame without headers
+    reference_df = pd.read_csv(reference_file, header=None, encoding='utf-8', dtype=str,keep_default_na=False)
+
+    # Convert the columns of interest to a tuple to facilitate matching
+    input_matching_tuple = tuple(input_df.iloc[:, col].astype(str).tolist() for col in input_matching_columns)
+    reference_matching_tuple = tuple(reference_df.iloc[:, col].astype(str).tolist() for col in reference_matching_columns)
+
+    # Convert reference tuples to a set for faster lookup
+    reference_matching_set = set(zip(*reference_matching_tuple))
+
+    # Filter matching rows from input DataFrame
+    matching_indices = [
+        idx for idx, values in enumerate(zip(*input_matching_tuple))
+        if values in reference_matching_set
+    ]
+    matching_values = input_df.iloc[matching_indices, :]
+
+    # Save the matching rows to a new CSV file
+    output_file = r'C:\Users\fuzail13\Downloads\TEST\Output.csv'
+    matching_values.to_csv(output_file, index=False, header=False, encoding='utf-8')
+
+    print(f"Matching values extracted and saved to '{output_file}' successfully.")
+
+# Example usage
+input_file = r'C:\Users\fuzail13\Downloads\TEST\Input.csv'
+reference_file = r'C:\Users\fuzail13\Downloads\Reference.csv'
+input_matching_columns = [4]  # Example: Input matching column positions [0, 2]
+reference_matching_columns = [0]  # Example: Reference matching column positions [1, 3]
+
+extract_matching_values(input_file, reference_file, input_matching_columns, reference_matching_columns)
